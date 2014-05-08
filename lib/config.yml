@@ -1,0 +1,2 @@
+access_key_id: <%= ENV['ACC_KEY'] %>
+secret_access_key: <%= ENV['SEC_KEY'] %>
