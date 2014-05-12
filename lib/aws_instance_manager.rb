@@ -53,5 +53,17 @@ class AwsInstanceManager
   def set_tags(id, new_tags)
     @ec2.instances[id].tags.merge!(new_tags)
   end
+  
+  def list_instances
+    @ec2.instances
+  end
+
+  def list_instances_per_region
+      list = Hash.new
+      AWS.regions.each do |region|
+        list[region.name] = region.ec2.instances.map(&:id)
+      end
+      list
+  end
 
 end

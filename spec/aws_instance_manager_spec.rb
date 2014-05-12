@@ -1,6 +1,5 @@
 require_relative 'spec_helper'
 require 'aws-sdk'
-#require 'active_support/core_ext/string/strip'
 
 describe AwsInstanceManager do
 
@@ -8,7 +7,9 @@ describe AwsInstanceManager do
 
   let(:instance_double_id) { 'i-e366c3eb' }
   let(:tags) { Hash.new }
-  
+  let(:instances_list) { [] }
+  let(:region_list) { {} }
+
   let(:instance_double) do
     instance = double(AWS::EC2::Instance)
     instance.stub(:tags) { tags }
@@ -18,11 +19,7 @@ describe AwsInstanceManager do
 
   let(:config_path) { "config.yml" }
   let(:endpoint) { "ec2.us-west-2.amazonaws.com" }
-  #let(:new_id_instance) { manager.launch({:name => 'New machine'}) }
-  #let(:config_file) { File.join(File.dirname(__FILE__), "../lib/#{config_path}") }
-  #let(:loaded_data) { YAML.load(ERB.new(File.read(config_file)).result) }
-  #let(:ec2) { AWS::EC2.new(:ec2_endpoint => endpoint) }
-
+  
   describe '#launch' do
     new_params = {
       name:              'New Instance',
@@ -138,7 +135,7 @@ describe AwsInstanceManager do
         manager.terminate(instance_double_id)
       end
     end # terminate
-    
+
     describe '#set_tags' do
       let(:new_tags) {
         {
@@ -155,4 +152,25 @@ describe AwsInstanceManager do
       end
     end #set_tags
   end # methods applied to an instance
+  
+  describe 'methods applied to AWS class and EC2 instance' do
+    describe '#list_instances' do
+      it "returns a list of instances from the current AwsInstanceManager" do
+        expect_any_instance_of(AWS::EC2).to(
+          receive(:instances).and_return(instances_list)
+        )
+        manager.list_instances
+      end
+    end #list_instances
+    
+    describe '#list_instances_per_region' do
+      it "returns a list of instances per region" do
+        expect(AWS).to(
+          receive(:regions).and_return(region_list)
+        )
+        manager.list_instances_per_region 
+      end
+    end #list_instances_per_region  
+  end # methods applied to AWS class and EC2 instance
+  
 end
